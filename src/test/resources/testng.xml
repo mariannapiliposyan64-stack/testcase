@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Atelier Studio – Full Test Suite" verbose="2" parallel="none">
+
+    <test name="Navigation Tests">
+        <classes>
+            <class name="tests.ConfiguratorTest">
+                <methods>
+                    <include name="testExploreHoverDropdown"/>
+                    <include name="testResetStorefront"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <test name="Configurator Tests">
+        <classes>
+            <class name="tests.ConfiguratorTest"/>
+        </classes>
+    </test>
+
+    <test name="Accessories Tests">
+        <classes>
+            <class name="tests.AccessoriesTest"/>
+        </classes>
+    </test>
+
+    <test name="Express Pay Tests">
+        <classes>
+            <class name="tests.ExpressPayTest"/>
+        </classes>
+    </test>
+
+    <test name="Checkout Tests">
+        <classes>
+            <class name="tests.CheckoutTest"/>
+        </classes>
+    </test>
+
+</suite>

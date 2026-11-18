@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atelier Studio - Store &amp; Checkout</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    body {
+      background-color: #f5f5f7;
+      color: #1d1d1f;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .frosted-nav {
+      background-color: rgba(251, 251, 253, 0.82);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+    }
+    .apple-card {
+      background-color: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+    }
+    .apple-input, .apple-select {
+      background-color: #ffffff;
+      border: 1px solid #d2d2d7;
+      color: #1d1d1f;
+      padding: 0.65rem 0.875rem;
+      border-radius: 0.75rem;
+      width: 100%;
+      outline: none;
+      font-size: 0.875rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .apple-input:focus, .apple-select:focus {
+      border-color: #0071e3;
+      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.16);
+    }
+    .apple-input.is-err, .apple-select.is-err {
+      border-color: #d70015;
+      background-color: #fff5f5;
+    }
+    .apple-input.is-ok, .apple-select.is-ok {
+      border-color: #248a3d;
+      background-color: #f4fbf6;
+    }
+    .apple-input:disabled, .apple-select:disabled {
+      background-color: #f5f5f7;
+      color: #86868b;
+      cursor: not-allowed;
+    }
+    .field-note {
+      font-size: 0.75rem;
+      min-height: 1.15rem;
+      margin-top: 0.3rem;
+      font-weight: 500;
+    }
+    .field-note.err { color: #d70015; }
+    .field-note.ok { color: #248a3d; }
+    .pill-btn {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      padding: 0.55rem 1.15rem;
+      border-radius: 9999px;
+      transition: all 0.18s ease;
+      cursor: pointer;
+    }
+    .pill-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .apple-check, .apple-radio {
+      accent-color: #0071e3;
+      width: 1rem;
+      height: 1rem;
+      cursor: pointer;
+    }
+    .draggable-bundle-item {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Frosted Glass Apple-Style Top Navigation -->
+  <header class="frosted-nav border-b border-black/10 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-12 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-7">
+        <!-- Minimalist Brand Emblem -->
+        <a href="#top" class="flex items-center gap-2 text-[#1d1d1f] font-semibold tracking-tight text-sm no-underline">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2L2 19.5h20L12 2zm0 4.6l6.1 10.9H5.9L12 6.6z"/>
+          </svg>
+          <span>Atelier</span>
+        </a>
+
+        <!-- Navigation Links + Hover Accessories Dropdown -->
+        <nav class="hidden md:flex items-center gap-6 text-[#1d1d1f]/80 font-normal">
+          <a href="#configurator" class="hover:text-[#1d1d1f] transition">Studio Pro</a>
+          <a href="#accessories" class="hover:text-[#1d1d1f] transition">Accessories</a>
+          <a href="#express-desk" class="hover:text-[#1d1d1f] transition">Express Pay</a>
+          <a href="#checkout" class="hover:text-[#1d1d1f] transition">Checkout</a>
+
+          <!-- Hover Menu (moveToElement) -->
+          <div class="relative nav-categories-wrap"
+               onmouseenter="showNavMenu()"
+               onmouseleave="hideNavMenu()">
+            <button type="button" class="nav-categories-trigger py-3 hover:text-[#1d1d1f] inline-flex items-center gap-1 cursor-pointer">
+              <span>Explore</span>
+              <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div class="nav-categories-menu absolute left-0 top-full w-48 bg-white/95 backdrop-blur-xl border border-black/10 rounded-2xl shadow-xl py-2 z-50" style="display: none;">
+              <button type="button" onclick="pickNavCategory('Studio Displays')" class="w-full text-left px-4 py-2 text-xs text-[#1d1d1f] hover:bg-[#0071e3] hover:text-white transition">Studio Displays</button>
+              <button type="button" onclick="pickNavCategory('AppleCare+ Plans')" class="w-full text-left px-4 py-2 text-xs text-[#1d1d1f] hover:bg-[#0071e3] hover:text-white transition">Protection Plans</button>
+              <button type="button" onclick="pickNavCategory('Education Pricing')" class="w-full text-left px-4 py-2 text-xs text-[#1d1d1f] hover:bg-[#0071e3] hover:text-white transition">Education Store</button>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <span class="hidden sm:inline text-[#6e6e73] nav-category-notice">Retail Storefront</span>
+        <span class="inline-flex items-center gap-1.5 font-medium text-[#1d1d1f] bg-black/5 px-2.5 py-1 rounded-full bag-header-count">
+          Bag (0)
+        </span>
+        <button type="button" onclick="resetStorefront()" class="text-[#0071e3] hover:underline font-medium cursor-pointer">
+          Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Subtle Announcement Ribbon -->
+  <div id="top" class="bg-white border-b border-black/5 py-2.5 px-4 text-center text-xs text-[#1d1d1f]">
+    <span>Save up to $650 with Atelier Trade In when you configure a new Studio Pro.</span>
+    <span class="text-[#6e6e73] ml-2 font-mono hidden sm:inline store-host-label">http://localhost:5050</span>
+  </div>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-12">
+
+    <!-- ================= SECTION 1: HERO & STUDIO PRO CONFIGURATOR ================= -->
+    <section id="configurator" class="space-y-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <span class="text-xs font-semibold tracking-wide uppercase text-[#bf4800]">New</span>
+          <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight text-[#1d1d1f] mt-1 store-main-heading">Configure Studio Pro.</h1>
+          <p class="text-base text-[#6e6e73] mt-2">Anodized aluminum precision. Custom unified memory and flagship pickup.</p>
+        </div>
+        <div class="text-right">
+          <div class="text-2xl font-semibold tracking-tight text-[#1d1d1f] live-price-display">$1,599</div>
+          <div class="text-xs text-[#6e6e73]">Free next-day courier or 2-hour pickup</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Left Column: Visual Hardware Showcase (7 cols) -->
+        <div class="lg:col-span-7 lg:sticky lg:top-16 space-y-4">
+          <div class="apple-card rounded-3xl p-8 sm:p-12 flex flex-col items-center justify-center min-h-[380px] relative overflow-hidden">
+            <!-- Dynamic SVG Studio Hardware Render -->
+            <svg class="w-full max-w-md h-auto drop-shadow-xl transition-all duration-300" viewBox="0 0 480 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Desk subtle shadow -->
+              <ellipse cx="240" cy="285" rx="185" ry="12" fill="rgba(0,0,0,0.08)"/>
+              <!-- Display Outer Shell -->
+              <rect x="60" y="25" width="360" height="215" rx="18" class="svg-chassis-fill" fill="#e3e4e8" stroke="#b0b3b8" stroke-width="2"/>
+              <!-- Screen Bezel -->
+              <rect x="70" y="35" width="340" height="195" rx="12" fill="#111214"/>
+              <!-- Wallpaper Gradient -->
+              <defs>
+                <linearGradient id="screenGrad" x1="70" y1="35" x2="410" y2="230" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#0f2027"/>
+                  <stop offset="50%" stop-color="#203a43"/>
+                  <stop offset="100%" stop-color="#2c5364"/>
+                </linearGradient>
+              </defs>
+              <rect x="78" y="43" width="324" height="179" rx="8" fill="url(#screenGrad)"/>
+              <!-- Minimalist Screen UI Graphic -->
+              <circle cx="240" cy="128" r="36" fill="rgba(255,255,255,0.12)"/>
+              <text x="240" y="133" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="600" font-family="-apple-system, sans-serif" class="svg-engraving-preview">STUDIO PRO</text>
+              <!-- Stand Neck -->
+              <path d="M210 240 L270 240 L282 276 L198 276 Z" class="svg-stand-fill" fill="#d1d3d8"/>
+              <!-- Stand Base -->
+              <rect x="170" y="274" width="140" height="8" rx="4" class="svg-chassis-fill" fill="#e3e4e8"/>
+            </svg>
+
+            <div class="mt-6 flex items-center gap-3 text-xs text-[#6e6e73]">
+              <span class="font-medium text-[#1d1d1f] finish-badge-label">Silver Finish</span>
+              <span>&middot;</span>
+              <span class="memory-badge-label">16GB Unified Memory</span>
+            </div>
+
+            <!-- Hover Trade-In Info Trigger (moveToElement) -->
+            <div class="mt-5 w-full max-w-sm bg-[#f5f5f7] border border-black/5 rounded-2xl p-3.5 text-center cursor-pointer tradein-hover-trigger"
+                 onmouseenter="showTradeInTooltip()"
+                 onmouseleave="hideTradeInTooltip()">
+              <div class="text-xs font-medium text-[#0071e3]">Hover for Atelier Trade In estimate &rarr;</div>
+              <div class="tradein-hover-details mt-2 pt-2 border-t border-black/10 text-xs text-[#1d1d1f]" style="display: none;">
+                Up to $650 instant credit for recent M-series workstations.
+              </div>
+            </div>
+          </div>
+
+          <!-- Trade-In Eligibility Check Overlay (invisibilityOfElementLocated) -->
+          <div class="apple-card rounded-2xl p-5 relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="text-sm font-semibold text-[#1d1d1f]">Trade-In Serial Eligibility</div>
+              <div class="text-xs text-[#6e6e73] mt-0.5 tradein-scan-status">Instant verification for existing hardware.</div>
+            </div>
+            <button type="button" onclick="scanTradeInEligibility()" class="pill-btn bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] border border-black/10 shrink-0">
+              Verify Trade-In
+            </button>
+            <div class="tradein-scan-overlay hidden absolute inset-0 bg-white/92 backdrop-blur-md flex items-center justify-center gap-2 z-10">
+              <span class="animate-spin h-4 w-4 border-2 border-[#0071e3] border-t-transparent rounded-full"></span>
+              <span class="text-xs font-medium text-[#1d1d1f]">Checking hardware registry...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Configuration Controls (5 cols) -->
+        <div class="lg:col-span-5 space-y-5">
+          <div class="apple-card rounded-3xl p-6 space-y-6">
+
+            <!-- 1. Finish (Radio Group) -->
+            <div class="space-y-3">
+              <div class="text-sm font-semibold text-[#1d1d1f]">Finish. <span class="text-[#6e6e73] font-normal">Pick your favorite.</span></div>
+              <div class="grid grid-cols-3 gap-2.5 text-xs">
+                <label class="cursor-pointer border border-[#d2d2d7] rounded-xl p-3 flex flex-col items-center gap-2 hover:border-[#0071e3] transition">
+                  <span class="w-6 h-6 rounded-full bg-[#e3e4e8] border border-black/15"></span>
+                  <div class="flex items-center gap-1.5">
+                    <input type="radio" name="hardware_finish" value="Silver" checked class="apple-radio" onchange="updateFinishChoice(this)">
+                    <span class="font-medium">Silver</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer border border-[#d2d2d7] rounded-xl p-3 flex flex-col items-center gap-2 hover:border-[#0071e3] transition">
+                  <span class="w-6 h-6 rounded-full bg-[#2b2c30] border border-black/20"></span>
+                  <div class="flex items-center gap-1.5">
+                    <input type="radio" name="hardware_finish" value="Space Black" class="apple-radio" onchange="updateFinishChoice(this)">
+                    <span class="font-medium">Space Black</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer border border-[#d2d2d7] rounded-xl p-3 flex flex-col items-center gap-2 hover:border-[#0071e3] transition">
+                  <span class="w-6 h-6 rounded-full bg-[#ede6d8] border border-black/15"></span>
+                  <div class="flex items-center gap-1.5">
+                    <input type="radio" name="hardware_finish" value="Starlight" class="apple-radio" onchange="updateFinishChoice(this)">
+                    <span class="font-medium">Starlight</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- 2. Memory Tier (Radio Group) -->
+            <div class="space-y-2.5 border-t border-black/5 pt-5">
+              <div class="text-sm font-semibold text-[#1d1d1f]">Memory. <span class="text-[#6e6e73] font-normal">How much do you need?</span></div>
+              <div class="space-y-2 text-xs">
+                <label class="flex items-center justify-between p-3 border border-[#d2d2d7] rounded-xl cursor-pointer hover:border-[#0071e3]">
+                  <div class="flex items-center gap-2.5">
+                    <input type="radio" name="memory_tier" value="16GB" checked class="apple-radio" onchange="updateMemoryChoice(this)">
+                    <span class="font-medium text-[#1d1d1f]">16GB Unified Memory</span>
+                  </div>
+                  <span class="text-[#6e6e73]">Included</span>
+                </label>
+                <label class="flex items-center justify-between p-3 border border-[#d2d2d7] rounded-xl cursor-pointer hover:border-[#0071e3]">
+                  <div class="flex items-center gap-2.5">
+                    <input type="radio" name="memory_tier" value="32GB" class="apple-radio" onchange="updateMemoryChoice(this)">
+                    <span class="font-medium text-[#1d1d1f]">32GB Unified Memory</span>
+                  </div>
+                  <span class="text-[#6e6e73]">+$400</span>
+                </label>
+                <label class="flex items-center justify-between p-3 border border-[#d2d2d7] rounded-xl cursor-pointer hover:border-[#0071e3]">
+                  <div class="flex items-center gap-2.5">
+                    <input type="radio" name="memory_tier" value="64GB" class="apple-radio" onchange="updateMemoryChoice(this)">
+                    <span class="font-medium text-[#1d1d1f]">64GB Unified Memory</span>
+                  </div>
+                  <span class="text-[#6e6e73]">+$800</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- 3. Pre-installed Software Bundle (Checkboxes: Select All + Mandatory Terms + Exact 2) -->
+            <div class="space-y-3 border-t border-black/5 pt-5">
+              <div class="flex justify-between items-center">
+                <div class="text-sm font-semibold text-[#1d1d1f]">Pro Apps Bundle</div>
+                <span class="text-xs text-[#6e6e73] apps-count-label">0 / 3 selected</span>
+              </div>
+
+              <div class="p-3.5 bg-[#f5f5f7] rounded-2xl space-y-2.5 text-xs">
+                <label class="flex items-center gap-2 font-semibold text-[#1d1d1f] cursor-pointer pb-1.5 border-b border-black/10">
+                  <input type="checkbox" name="select_all_apps" class="apple-check" onchange="toggleAllProApps(this)">
+                  <span>Select All Pro Studio Apps</span>
+                </label>
+                <div class="grid grid-cols-3 gap-2">
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <input type="checkbox" name="app_logic" class="apple-check pro-app-item" onchange="syncProAppsMaster()">
+                    <span>Logic Pro</span>
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <input type="checkbox" name="app_finalcut" class="apple-check pro-app-item" onchange="syncProAppsMaster()">
+                    <span>Final Cut</span>
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <input type="checkbox" name="app_motion" class="apple-check pro-app-item" onchange="syncProAppsMaster()">
+                    <span>Motion</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Exact 2 Notifications Rule -->
+              <div class="p-3.5 bg-[#f5f5f7] rounded-2xl space-y-2 text-xs field-group">
+                <div class="flex justify-between items-center">
+                  <span class="font-semibold text-[#1d1d1f]">Select Exactly 2 Order Updates:</span>
+                  <span class="font-mono text-[#6e6e73] updates-count-label">0 / 2</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <input type="checkbox" name="order_update_opt" value="sms" class="apple-check update-opt" onchange="checkTwoUpdates()">
+                    <span>SMS Text Alert</span>
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <input type="checkbox" name="order_update_opt" value="email" class="apple-check update-opt" onchange="checkTwoUpdates()">
+                    <span>Email Summary</span>
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <input type="checkbox" name="order_update_opt" value="wallet" class="apple-check update-opt" onchange="checkTwoUpdates()">
+                    <span>Wallet Pass</span>
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <input type="checkbox" name="order_update_opt" value="push" class="apple-check update-opt" onchange="checkTwoUpdates()">
+                    <span>Push Notification</span>
+                  </label>
+                </div>
+                <div class="field-note updates-note"></div>
+              </div>
+
+              <!-- Mandatory Terms Checkbox -->
+              <div class="field-group">
+                <label class="flex items-start gap-2 cursor-pointer text-xs text-[#1d1d1f]">
+                  <input type="checkbox" name="agree_license_terms" class="apple-check mt-0.5" onchange="checkLicenseAgreement(this)">
+                  <span>I agree to the Atelier Software License Terms <span class="text-[#d70015]">*</span></span>
+                </label>
+                <div class="field-note license-note"></div>
+              </div>
+            </div>
+
+            <!-- 4. Custom Engraving (Clearable + Shift Key) -->
+            <div class="space-y-1.5 border-t border-black/5 pt-5 field-group">
+              <div class="flex justify-between items-center">
+                <label class="text-sm font-semibold text-[#1d1d1f]">Free Engraving</label>
+                <span class="text-xs font-mono text-[#6e6e73] engraving-len-badge">23 / 24</span>
+              </div>
+              <input type="text" name="engraving_text" value="Complimentary Engraving" class="apple-input" oninput="validateEngraving(this)">
+              <div class="field-note engraving-note"></div>
+            </div>
+
+            <!-- 5. Retail Pickup Selection (Dependent Dropdown + Explicit Wait) -->
+            <div class="space-y-3 border-t border-black/5 pt-5">
+              <div class="text-sm font-semibold text-[#1d1d1f]">Store Pickup</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <select name="pickup_country" class="apple-select text-xs" onchange="fetchRetailStores(this)">
+                  <option value="" disabled selected>-- Select Region --</option>
+                  <option value="US">United States</option>
+                  <option value="UK">United Kingdom</option>
+                  <option value="DE">Germany</option>
+                  <option value="JP">Japan</option>
+                </select>
+                <select name="pickup_store" disabled class="apple-select text-xs">
+                  <option value="" disabled selected>-- Select Store --</option>
+                </select>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs text-[#6e6e73] store-fetch-status">Select a region to browse stores</span>
+                <button type="button" onclick="checkInStoreAvailability()" class="text-xs font-medium text-[#0071e3] hover:underline cursor-pointer shrink-0">
+                  Check Store Stock
+                </button>
+              </div>
+              <div class="stock-result-container min-h-[28px]"></div>
+            </div>
+
+            <!-- Primary CTA -->
+            <div class="pt-2">
+              <button type="button" onclick="addConfiguredStudioToBag()" class="pill-btn w-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold py-3 text-sm shadow-xs">
+                Add Studio Pro to Bag
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 2: STUDIO ACCESSORIES CATALOG (Web Table & Multiple Elements) ================= -->
+    <section id="accessories" class="apple-card rounded-3xl p-6 sm:p-8 space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/5 pb-4">
+        <div>
+          <h2 class="text-2xl font-semibold tracking-tight text-[#1d1d1f]">Essential Studio Accessories.</h2>
+          <p class="text-xs text-[#6e6e73] mt-0.5">Filter catalog items, add accessories directly to your Bag, or request a custom studio item.</p>
+        </div>
+        <div class="text-xs font-medium px-3.5 py-1.5 rounded-full bg-[#f5f5f7] text-[#1d1d1f] border border-black/5 bag-status-banner">
+          Bag is empty.
+        </div>
+      </div>
+
+      <!-- Filter & Custom Add Toolbar -->
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-[#f5f5f7] p-3.5 rounded-2xl">
+        <div class="sm:col-span-4">
+          <input type="text" name="catalog_search" placeholder="Search accessories..." class="apple-input text-xs py-2" oninput="filterAccessoriesTable(this.value)">
+        </div>
+        <div class="sm:col-span-4">
+          <input type="text" name="custom_acc_name" placeholder="Custom accessory name (min 3 chars)" class="apple-input text-xs py-2">
+        </div>
+        <div class="sm:col-span-2">
+          <input type="number" name="custom_acc_price" placeholder="Price ($10-$2000)" class="apple-input text-xs py-2">
+        </div>
+        <div class="sm:col-span-2">
+          <button type="button" onclick="addCustomAccessoryRow()" class="pill-btn w-full bg-[#1d1d1f] hover:bg-black text-white py-2 text-xs">
+            Add Quote
+          </button>
+        </div>
+      </div>
+
+      <!-- Minimal Apple-Style Table -->
+      <div class="overflow-x-auto border border-black/10 rounded-2xl">
+        <table class="w-full text-left border-collapse catalog-table">
+          <thead>
+            <tr class="bg-[#fbfbfd] border-b border-black/10 text-xs font-semibold text-[#6e6e73]">
+              <th class="py-3 px-4">Product</th>
+              <th class="py-3 px-4">Category</th>
+              <th class="py-3 px-4">Price</th>
+              <th class="py-3 px-4">Availability</th>
+              <th class="py-3 px-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-black/5 text-xs text-[#1d1d1f] catalog-tbody">
+            <tr class="hover:bg-[#fbfbfd] transition catalog-row">
+              <td class="py-3.5 px-4 font-semibold item-name">Studio Keyboard Pro</td>
+              <td class="py-3.5 px-4 text-[#6e6e73] item-category">Input</td>
+              <td class="py-3.5 px-4 font-medium item-price">$199</td>
+              <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full bg-[#e8f7ed] text-[#1d8a32] font-medium item-stock-pill">In Stock</span></td>
+              <td class="py-3.5 px-4 text-right space-x-1.5">
+                <button type="button" onclick="addAccessoryToBag(this)" class="pill-btn bg-[#0071e3] hover:bg-[#0077ed] text-white py-1.5 px-3.5 text-xs add-bag-btn">Add to Bag</button>
+                <button type="button" onclick="removeAccessoryRow(this)" class="pill-btn bg-[#f5f5f7] hover:bg-[#ffe5e5] text-[#6e6e73] hover:text-[#d70015] py-1.5 px-3 text-xs remove-acc-btn">Remove</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-[#fbfbfd] transition catalog-row">
+              <td class="py-3.5 px-4 font-semibold item-name">Precision Trackpad</td>
+              <td class="py-3.5 px-4 text-[#6e6e73] item-category">Input</td>
+              <td class="py-3.5 px-4 font-medium item-price">$129</td>
+              <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full bg-[#e8f7ed] text-[#1d8a32] font-medium item-stock-pill">In Stock</span></td>
+              <td class="py-3.5 px-4 text-right space-x-1.5">
+                <button type="button" onclick="addAccessoryToBag(this)" class="pill-btn bg-[#0071e3] hover:bg-[#0077ed] text-white py-1.5 px-3.5 text-xs add-bag-btn">Add to Bag</button>
+                <button type="button" onclick="removeAccessoryRow(this)" class="pill-btn bg-[#f5f5f7] hover:bg-[#ffe5e5] text-[#6e6e73] hover:text-[#d70015] py-1.5 px-3 text-xs remove-acc-btn">Remove</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-[#fbfbfd] transition catalog-row">
+              <td class="py-3.5 px-4 font-semibold item-name">Thunderbolt 4 Dock</td>
+              <td class="py-3.5 px-4 text-[#6e6e73] item-category">Connectivity</td>
+              <td class="py-3.5 px-4 font-medium item-price">$249</td>
+              <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full bg-[#e8f7ed] text-[#1d8a32] font-medium item-stock-pill">In Stock</span></td>
+              <td class="py-3.5 px-4 text-right space-x-1.5">
+                <button type="button" onclick="addAccessoryToBag(this)" class="pill-btn bg-[#0071e3] hover:bg-[#0077ed] text-white py-1.5 px-3.5 text-xs add-bag-btn">Add to Bag</button>
+                <button type="button" onclick="removeAccessoryRow(this)" class="pill-btn bg-[#f5f5f7] hover:bg-[#ffe5e5] text-[#6e6e73] hover:text-[#d70015] py-1.5 px-3 text-xs remove-acc-btn">Remove</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-[#fbfbfd] transition catalog-row">
+              <td class="py-3.5 px-4 font-semibold item-name">Braided USB-C Cable</td>
+              <td class="py-3.5 px-4 text-[#6e6e73] item-category">Cables</td>
+              <td class="py-3.5 px-4 font-medium item-price">$29</td>
+              <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full bg-[#fff4e5] text-[#b25000] font-medium item-stock-pill">Low Stock</span></td>
+              <td class="py-3.5 px-4 text-right space-x-1.5">
+                <button type="button" onclick="addAccessoryToBag(this)" class="pill-btn bg-[#0071e3] hover:bg-[#0077ed] text-white py-1.5 px-3.5 text-xs add-bag-btn">Add to Bag</button>
+                <button type="button" onclick="removeAccessoryRow(this)" class="pill-btn bg-[#f5f5f7] hover:bg-[#ffe5e5] text-[#6e6e73] hover:text-[#d70015] py-1.5 px-3 text-xs remove-acc-btn">Remove</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="empty-catalog-slot"></div>
+      </div>
+
+      <div class="text-xs text-[#6e6e73] catalog-count-label">Showing 4 accessories</div>
+    </section>
+
+    <!-- ================= SECTION 3: EXPRESS BUNDLE & TOUCH GESTURES (Actions Class) ================= -->
+    <section id="express-desk" class="apple-card rounded-3xl p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/5 pb-4">
+        <div>
+          <h2 class="text-2xl font-semibold tracking-tight text-[#1d1d1f]">Express Checkout &amp; Saved Builds.</h2>
+          <p class="text-xs text-[#6e6e73] mt-0.5">Drag bundles to your express tray, double-click to authorize Pay, or right-click saved builds.</p>
+        </div>
+        <div class="text-xs font-medium text-[#1d1d1f] bg-[#f5f5f7] px-3 py-1.5 rounded-full express-gesture-status">
+          Ready for express interaction
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- 1. Drag & Drop Express Bundle -->
+        <div class="p-4 bg-[#f5f5f7] rounded-2xl space-y-3">
+          <div class="text-xs font-semibold text-[#1d1d1f]">Build Express Bundle</div>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div draggable="true" class="draggable-bundle-item bg-white border border-black/10 rounded-xl p-3 text-center text-xs font-semibold text-[#1d1d1f] shadow-2xs cursor-grab active:cursor-grabbing">
+              AirPods Max Case
+            </div>
+            <div class="express-tray-dropzone bg-white/60 border-2 border-dashed border-[#0071e3]/40 rounded-xl p-3 text-center text-xs font-medium text-[#0071e3] flex items-center justify-center min-h-[60px]">
+              Drop Here for Express
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Double-Click Apple Pay Authorization + Right-Click Build Menu -->
+        <div class="p-4 bg-[#f5f5f7] rounded-2xl space-y-3 flex flex-col justify-between">
+          <div class="text-xs font-semibold text-[#1d1d1f]">Touch &amp; Context Actions</div>
+          <div class="space-y-2.5">
+            <button type="button" ondblclick="authorizePayDoubleClick(this)"
+              class="pay-doubleclick-btn w-full py-2.5 px-4 rounded-xl bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold transition cursor-pointer">
+              Double-Click to Pay
+            </button>
+
+            <div class="relative">
+              <div oncontextmenu="openBuildContextMenu(event, this)"
+                class="saved-build-tile w-full py-2.5 px-4 rounded-xl bg-white border border-black/10 text-xs font-semibold text-[#1d1d1f] text-center cursor-context-menu select-none hover:bg-white/80">
+                Saved Build: Studio M4 (Right-Click)
+              </div>
+
+              <!-- macOS Frosted Context Menu -->
+              <div class="macos-context-menu hidden absolute left-0 right-0 top-full mt-1.5 bg-white/95 backdrop-blur-xl border border-black/10 rounded-xl shadow-xl py-1.5 z-30 text-xs">
+                <button type="button" onclick="triggerBuildMenuItem('Duplicated Build')" class="w-full text-left px-3.5 py-1.5 hover:bg-[#0071e3] hover:text-white text-[#1d1d1f]">Duplicate Build</button>
+                <button type="button" onclick="triggerBuildMenuItem('Saved to Favorites')" class="w-full text-left px-3.5 py-1.5 hover:bg-[#0071e3] hover:text-white text-[#1d1d1f]">Save to Favorites</button>
+                <button type="button" onclick="triggerBuildMenuItem('Copied Spec Sheet')" class="w-full text-left px-3.5 py-1.5 hover:bg-[#0071e3] hover:text-white text-[#1d1d1f]">Copy Spec Sheet</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Keyboard Shift Serial Input -->
+        <div class="p-4 bg-[#f5f5f7] rounded-2xl space-y-2.5 flex flex-col justify-center">
+          <label class="text-xs font-semibold text-[#1d1d1f]">Hardware Serial Lookup</label>
+          <input type="text" name="quick_serial_input" placeholder="Enter serial (Shift for uppercase)" class="apple-input text-xs">
+          <div class="text-[11px] text-[#6e6e73]">Supports keyboard modifier input directly.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 4: CHECKOUT, VERIFICATION & SUPPORT ================= -->
+    <section id="checkout" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- Left (7 cols): Billing & Verification Form (Restricted Fields) -->
+      <div class="lg:col-span-7 apple-card rounded-3xl p-6 sm:p-8 space-y-6">
+        <div class="border-b border-black/5 pb-4 flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-semibold tracking-tight text-[#1d1d1f]">Checkout &amp; Verification.</h2>
+            <p class="text-xs text-[#6e6e73] mt-0.5">Provide recipient identity, financing age check, and shipping contact details.</p>
+          </div>
+          <span class="text-xs font-semibold px-3 py-1 rounded-full bg-[#f5f5f7] text-[#6e6e73] checkout-status-pill">Unverified</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="field-group">
+            <label class="block text-xs font-semibold text-[#1d1d1f] mb-1">Recipient Full Name</label>
+            <input type="text" name="recipient_name" value="Walk-in Guest" class="apple-input" oninput="checkRecipientName(this)">
+            <div class="field-note"></div>
+          </div>
+
+          <div class="field-group">
+            <label class="block text-xs font-semibold text-[#1d1d1f] mb-1">Email Address</label>
+            <input type="email" name="checkout_email" placeholder="alex@icloud.com" class="apple-input" oninput="checkCheckoutEmail(this)">
+            <div class="field-note"></div>
+          </div>
+
+          <div class="field-group">
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-xs font-semibold text-[#1d1d1f]">Mobile Phone (10 Digits)</label>
+              <span class="text-[11px] font-mono text-[#6e6e73] len-counter">0 / 10</span>
+            </div>
+            <input type="text" name="checkout_phone" placeholder="4085550192" class="apple-input" oninput="checkCheckoutPhone(this)">
+            <div class="field-note"></div>
+          </div>
+
+          <div class="field-group">
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-xs font-semibold text-[#1d1d1f]">Order Reference (8 A-Z/0-9)</label>
+              <span class="text-[11px] font-mono text-[#6e6e73] len-counter">0 / 8</span>
+            </div>
+            <input type="text" name="order_serial" placeholder="e.g. APL8042X" class="apple-input" oninput="checkOrderSerial(this)">
+            <div class="field-note"></div>
+          </div>
+
+          <div class="field-group">
+            <label class="block text-xs font-semibold text-[#1d1d1f] mb-1">Buyer Age (Financing: 18 - 95)</label>
+            <input type="number" name="buyer_age" placeholder="18 to 95" class="apple-input" oninput="checkBuyerAge(this)">
+            <div class="field-note"></div>
+          </div>
+
+          <div class="field-group">
+            <label class="block text-xs font-semibold text-[#1d1d1f] mb-1">Order Quantity (1 - 25)</label>
+            <input type="number" name="order_qty" placeholder="1 to 25" class="apple-input" oninput="checkOrderQty(this)">
+            <div class="field-note"></div>
+          </div>
+
+          <div class="field-group">
+            <label class="block text-xs font-semibold text-[#1d1d1f] mb-1">Trade-In Parcel Weight kg (0.5 - 30.0)</label>
+            <input type="text" name="tradein_weight" placeholder="e.g. 2.4" class="apple-input" oninput="checkTradeInWeight(this)">
+            <div class="field-note"></div>
+          </div>
+
+          <div class="field-group">
+            <label class="block text-xs font-semibold text-[#1d1d1f] mb-1">4-Digit Security PIN</label>
+            <input type="password" name="account_pin" placeholder="4 numeric digits" class="apple-input" oninput="checkAccountPin(this)">
+            <div class="field-note"></div>
+          </div>
+
+          <div class="sm:col-span-2 field-group">
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-xs font-semibold text-[#1d1d1f]">Education Discount Code (Uppercase A-Z)</label>
+              <button type="button" onclick="toggleEduDiscount(this)" class="text-xs font-medium text-[#0071e3] hover:underline cursor-pointer">
+                Unlock Education Code
+              </button>
+            </div>
+            <input type="text" name="edu_discount_code" disabled placeholder="Click Unlock Education Code to apply" class="apple-input" oninput="checkEduCode(this)">
+            <div class="field-note edu-lock-note">Requires student verification</div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-black/5 flex flex-wrap justify-end gap-3">
+          <button type="button" onclick="clearCheckoutForm()" class="pill-btn bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f]">
+            Clear Details
+          </button>
+          <button type="button" onclick="verifyCheckoutDetails()" class="pill-btn bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold">
+            Verify Checkout Details
+          </button>
+        </div>
+      </div>
+
+      <!-- Right (5 cols): Final Order Waits, Native Dialogs, Tax Upload & Receipt Downloads -->
+      <div class="lg:col-span-5 space-y-6">
+        <!-- Order Finalization & Waits -->
+        <div class="apple-card rounded-3xl p-6 space-y-5">
+          <div class="border-b border-black/5 pb-3">
+            <h3 class="text-base font-semibold text-[#1d1d1f]">Final Authorization</h3>
+            <p class="text-xs text-[#6e6e73]">Security cooldown, invoice signing, and retail support notices</p>
+          </div>
+
+          <!-- Cooldown Unlock Button (elementToBeClickable) -->
+          <div class="p-4 bg-[#f5f5f7] rounded-2xl space-y-2.5">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-semibold text-[#1d1d1f]">Fraud Protection Check</span>
+              <button type="button" onclick="prepareFinalCheckout()" class="text-xs font-medium text-[#0071e3] hover:underline cursor-pointer">
+                Prepare Final Checkout
+              </button>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <button type="button" disabled onclick="placeFinalOrder()" class="pill-btn place-order-btn bg-[#d2d2d7] text-[#6e6e73] text-xs py-2 px-4">
+                Place Final Order
+              </button>
+              <span class="text-xs font-mono text-[#6e6e73] checkout-timer-label">Locked</span>
+            </div>
+          </div>
+
+          <!-- Multi-stage Progress Text (textToBePresentInElement) -->
+          <div class="p-4 bg-[#f5f5f7] rounded-2xl space-y-2.5">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-semibold text-[#1d1d1f]">Electronic Invoice</span>
+              <button type="button" onclick="generateInvoiceProgress()" class="text-xs font-medium text-[#0071e3] hover:underline cursor-pointer">
+                Generate Invoice PDF
+              </button>
+            </div>
+            <div class="text-xs font-mono p-2.5 bg-white rounded-xl border border-black/5 invoice-progress-label text-[#1d1d1f]">
+              Invoice Status: Idle
+            </div>
+          </div>
+
+          <!-- Native Browser Dialogs (alert, confirm, prompt) -->
+          <div class="space-y-2.5 pt-2 border-t border-black/5">
+            <div class="text-xs font-semibold text-[#1d1d1f]">Retail Support Alerts</div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="triggerPickupAlert()" class="pill-btn bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] text-xs py-1.5 px-3">
+                Store Pickup Alert
+              </button>
+              <button type="button" onclick="triggerHoldConfirm()" class="pill-btn bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] text-xs py-1.5 px-3">
+                Cancel Express Hold
+              </button>
+              <button type="button" onclick="triggerGiftPrompt()" class="pill-btn bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] text-xs py-1.5 px-3">
+                Add Gift Note
+              </button>
+            </div>
+            <div class="text-xs text-[#6e6e73] bg-[#f5f5f7] p-2.5 rounded-xl support-dialog-result">
+              No support dialog triggered yet.
+            </div>
+          </div>
+        </div>
+
+        <!-- Tax Upload & Receipt Downloads -->
+        <div class="apple-card rounded-3xl p-6 space-y-4">
+          <div class="border-b border-black/5 pb-3">
+            <h3 class="text-base font-semibold text-[#1d1d1f]">Receipts &amp; Tax Documents</h3>
+            <p class="text-xs text-[#6e6e73]">Upload tax-exempt certificate (.txt, .csv, .json max 512 KB)</p>
+          </div>
+
+          <input type="file" name="tax_exempt_upload" onchange="handleTaxUpload(this)"
+            class="block w-full text-xs text-[#6e6e73] file:mr-3 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:text-xs file:font-medium file:bg-[#0071e3] file:text-white hover:file:bg-[#0077ed] cursor-pointer">
+          <div class="text-xs font-medium text-[#6e6e73] bg-[#f5f5f7] p-3 rounded-xl tax-upload-status">
+            No tax document attached.
+          </div>
+          <div class="flex justify-end">
+            <button type="button" onclick="verifyTaxCertificatePopup()" class="pill-btn bg-[#1d1d1f] hover:bg-black text-white text-xs">
+              Verify Certificate
+            </button>
+          </div>
+
+          <div class="border-t border-black/5 pt-3.5 space-y-2.5">
+            <div class="text-xs font-semibold text-[#1d1d1f]">Download Order Files</div>
+            <div class="flex flex-wrap gap-2">
+              <a href="/download/order-receipt.txt" download="order-receipt.txt" onclick="trackReceiptDownload('order-receipt.txt')"
+                class="pill-btn bg-[#1d8a32] hover:bg-[#19782b] text-white text-xs inline-flex items-center no-underline">
+                Download Receipt (.txt)
+              </a>
+              <a href="/download/accessories-catalog.csv" download="accessories-catalog.csv" onclick="trackReceiptDownload('accessories-catalog.csv')"
+                class="pill-btn bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] border border-black/10 text-xs inline-flex items-center no-underline">
+                Download Catalog (.csv)
+              </a>
+            </div>
+            <div class="text-xs text-[#6e6e73] receipt-download-status">Ready to download.</div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Apple-Style Frosted Modal Sheet -->
+  <div class="sheet-backdrop fixed inset-0 bg-black/35 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden" role="dialog" aria-modal="true">
+    <div class="bg-white rounded-3xl max-w-md w-full p-7 shadow-2xl border border-black/10 space-y-4">
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="sheet-title text-lg font-semibold tracking-tight text-[#1d1d1f]">Atelier Notification</h3>
+          <p class="sheet-subtitle text-xs text-[#6e6e73] mt-0.5">Order System</p>
+        </div>
+        <button type="button" onclick="closeSheetModal()" class="w-7 h-7 rounded-full bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#6e6e73] flex items-center justify-center text-base leading-none cursor-pointer" aria-label="Close">
+          &times;
+        </button>
+      </div>
+      <div class="sheet-message-box text-sm p-4 rounded-2xl border font-medium leading-relaxed">
+        Message details.
+      </div>
+      <div class="flex justify-end pt-1">
+        <button type="button" onclick="closeSheetModal()" class="pill-btn bg-[#0071e3] hover:bg-[#0077ed] text-white px-5 py-2 sheet-ack-btn">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if (window.location.hostname) {
+      const port = window.location.port ? ':' + window.location.port : '';
+      document.querySelector('.store-host-label').textContent = 'http://' + window.location.hostname + port;
+    }
+
+    // --- SHEET MODAL ---
+    function openSheetModal(title, subtitle, msg, ok = true) {
+      const sheet = document.querySelector('.sheet-backdrop');
+      sheet.querySelector('.sheet-title').textContent = title;
+      sheet.querySelector('.sheet-subtitle').textContent = subtitle;
+      const box = sheet.querySelector('.sheet-message-box');
+      box.textContent = msg;
+      box.className = ok
+        ? 'sheet-message-box text-sm p-4 rounded-2xl border font-medium leading-relaxed bg-[#f4fbf6] border-[#b7e4c2] text-[#14532d]'
+        : 'sheet-message-box text-sm p-4 rounded-2xl border font-medium leading-relaxed bg-[#fff5f5] border-[#fecdd3] text-[#9f1239]';
+      sheet.classList.remove('hidden');
+    }
+
+    function closeSheetModal() {
+      document.querySelector('.sheet-backdrop').classList.add('hidden');
+    }
+
+    // --- TOP HOVER MENU ---
+    function showNavMenu() {
+      document.querySelector('.nav-categories-menu').style.display = 'block';
+    }
+    function hideNavMenu() {
+      document.querySelector('.nav-categories-menu').style.display = 'none';
+    }
+    function pickNavCategory(name) {
+      document.querySelector('.nav-category-notice').textContent = 'Viewing: ' + name;
+      hideNavMenu();
+    }
+
+    // --- CONFIGURATOR STATE & HARDWARE SVG FINISH ---
+    let bagCount = 0;
+    let currentMemoryAddon = 0;
+
+    function updateBagCounter(delta) {
+      bagCount += delta;
+      document.querySelector('.bag-header-count').textContent = 'Bag (' + bagCount + ')';
+    }
+
+    function updateFinishChoice(radio) {
+      const finish = radio.value;
+      document.querySelector('.finish-badge-label').textContent = finish + ' Finish';
+      const chassisEls = document.querySelectorAll('.svg-chassis-fill');
+      const standEl = document.querySelector('.svg-stand-fill');
+
+      if (finish === 'Space Black') {
+        chassisEls.forEach(el => el.setAttribute('fill', '#2b2c30'));
+        standEl.setAttribute('fill', '#1f2023');
+      } else if (finish === 'Starlight') {
+        chassisEls.forEach(el => el.setAttribute('fill', '#ede6d8'));
+        standEl.setAttribute('fill', '#ddd4c3');
+      } else {
+        chassisEls.forEach(el => el.setAttribute('fill', '#e3e4e8'));
+        standEl.setAttribute('fill', '#d1d3d8');
+      }
+    }
+
+    function updateMemoryChoice(radio) {
+      const val = radio.value;
+      document.querySelector('.memory-badge-label').textContent = val + ' Unified Memory';
+      currentMemoryAddon = val === '64GB' ? 800 : (val === '32GB' ? 400 : 0);
+      document.querySelector('.live-price-display').textContent = '$' + (1599 + currentMemoryAddon).toLocaleString();
+    }
+
+    // Trade-In Hover & Scan Wait
+    function showTradeInTooltip() {
+      document.querySelector('.tradein-hover-details').style.display = 'block';
+    }
+    function hideTradeInTooltip() {
+      document.querySelector('.tradein-hover-details').style.display = 'none';
+    }
+
+    function scanTradeInEligibility() {
+      const overlay = document.querySelector('.tradein-scan-overlay');
+      const status = document.querySelector('.tradein-scan-status');
+      overlay.classList.remove('hidden');
+      status.textContent = 'Scanning hardware eligibility...';
+
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        status.textContent = 'Eligible: Up to $650 instant credit verified.';
+        status.className = 'text-xs text-[#248a3d] font-medium mt-0.5 tradein-scan-status';
+        openSheetModal('Trade-In Eligible', 'Hardware Assessment', 'Your current device qualifies for up to $650 instant store credit.', true);
+      }, 2000);
+    }
+
+    // Pro Apps Checkboxes
+    function toggleAllProApps(master) {
+      document.querySelectorAll('.pro-app-item').forEach(cb => cb.checked = master.checked);
+      syncProAppsMaster();
+    }
+    function syncProAppsMaster() {
+      const apps = Array.from(document.querySelectorAll('.pro-app-item'));
+      const master = document.querySelector('input[name="select_all_apps"]');
+      const count = apps.filter(a => a.checked).length;
+      document.querySelector('.apps-count-label').textContent = count + ' / ' + apps.length + ' selected';
+      if (count === 0) { master.checked = false; master.indeterminate = false; }
+      else if (count === apps.length) { master.checked = true; master.indeterminate = false; }
+      else { master.checked = false; master.indeterminate = true; }
+    }
+
+    function checkTwoUpdates() {
+      const selected = Array.from(document.querySelectorAll('.update-opt:checked'));
+      document.querySelector('.updates-count-label').textContent = selected.length + ' / 2';
+      const note = document.querySelector('.updates-note');
+      if (selected.length === 2) {
+        note.textContent = '';
+        note.className = 'field-note ok updates-note';
+        return true;
+      }
+      note.textContent = 'Select exactly 2 order updates (chosen: ' + selected.length + ').';
+      note.className = 'field-note err updates-note';
+      return false;
+    }
+
+    function checkLicenseAgreement(cb) {
+      const note = document.querySelector('.license-note');
+      if (cb.checked) {
+        note.textContent = '';
+        note.className = 'field-note ok license-note';
+        return true;
+      }
+      note.textContent = 'License agreement must be accepted.';
+      note.className = 'field-note err license-note';
+      return false;
+    }
+
+    function validateEngraving(el) {
+      const val = el.value;
+      document.querySelector('.engraving-len-badge').textContent = val.length + ' / 24';
+      document.querySelector('.svg-engraving-preview').textContent = val.trim() ? val.trim().slice(0, 18) : 'STUDIO PRO';
+      const note = document.querySelector('.engraving-note');
+
+      if (val === 'Complimentary Engraving') {
+        el.classList.add('is-err'); el.classList.remove('is-ok');
+        note.textContent = 'Clear default text before entering custom engraving.';
+        note.className = 'field-note err engraving-note';
+        return false;
+      }
+      if (val.length < 4 || val.length > 24) {
+        el.classList.add('is-err'); el.classList.remove('is-ok');
+        note.textContent = 'Engraving must be between 4 and 24 characters.';
+        note.className = 'field-note err engraving-note';
+        return false;
+      }
+      el.classList.remove('is-err'); el.classList.add('is-ok');
+      note.textContent = '';
+      note.className = 'field-note ok engraving-note';
+      return true;
+    }
+
+    // Store Pickup Dependent Dropdown + Stock Wait
+    const STORES_BY_COUNTRY = {
+      US: [{ label: 'Fifth Avenue, NY', value: 'NYC-5TH' }, { label: 'SoHo, NY', value: 'NYC-SOHO' }, { label: 'Beverly Hills, CA', value: 'LA-BH' }],
+      UK: [{ label: 'Regent Street, London', value: 'LON-REG' }, { label: 'Covent Garden', value: 'LON-COV' }],
+      DE: [{ label: 'Kurfurstendamm, Berlin', value: 'BER-KUD' }, { label: 'Rosenstrasse, Munich', value: 'MUC-ROS' }],
+      JP: [{ label: 'Ginza, Tokyo', value: 'TYO-GIN' }, { label: 'Shinsaibashi, Osaka', value: 'OSA-SHN' }]
+    };
+
+    function fetchRetailStores(countryEl) {
+      const code = countryEl.value;
+      const storeEl = document.querySelector('select[name="pickup_store"]');
+      const status = document.querySelector('.store-fetch-status');
+
+      storeEl.disabled = true;
+      storeEl.innerHTML = '<option value="" disabled selected>Finding nearby stores...</option>';
+      status.textContent = 'Loading regional stores (1.2s)...';
+      status.className = 'text-xs text-[#0071e3] font-medium store-fetch-status';
+
+      setTimeout(() => {
+        const list = STORES_BY_COUNTRY[code] || [];
+        storeEl.innerHTML = '<option value="" disabled selected>-- Select Pickup Store --</option>';
+        list.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.value;
+          opt.textContent = s.label;
+          storeEl.appendChild(opt);
+        });
+        storeEl.disabled = false;
+        status.textContent = list.length + ' flagship stores available';
+        status.className = 'text-xs text-[#248a3d] font-medium store-fetch-status';
+      }, 1200);
+    }
+
+    function checkInStoreAvailability() {
+      const storeVal = document.querySelector('select[name="pickup_store"]').value;
+      const box = document.querySelector('.stock-result-container');
+      if (!storeVal) {
+        openSheetModal('Select Pickup Store', 'Store Lookup', 'Choose a region and retail store before checking pickup stock.', false);
+        return;
+      }
+      box.innerHTML = '<div class="text-xs text-[#0071e3] font-medium animate-pulse">Checking live store inventory...</div>';
+      setTimeout(() => {
+        box.innerHTML = '<div class="stock-ready-banner text-xs font-semibold text-[#1d8a32] bg-[#e8f7ed] px-3 py-2 rounded-xl border border-[#b7e4c2]">Ready for Pickup Today at Flagship Store</div>';
+      }, 1500);
+    }
+
+    function addConfiguredStudioToBag() {
+      const licOk = checkLicenseAgreement(document.querySelector('input[name="agree_license_terms"]'));
+      const updOk = checkTwoUpdates();
+      const engOk = validateEngraving(document.querySelector('input[name="engraving_text"]'));
+      const finish = document.querySelector('input[name="hardware_finish"]:checked').value;
+      const mem = document.querySelector('input[name="memory_tier"]:checked').value;
+
+      if (licOk && updOk && engOk) {
+        updateBagCounter(1);
+        openSheetModal(
+          'Studio Pro Added to Bag',
+          'Atelier Store',
+          'Configured ' + finish + ' Studio Pro (' + mem + ' Unified Memory) added to your bag.',
+          true
+        );
+      } else {
+        openSheetModal(
+          'Configuration Incomplete',
+          'Atelier Store',
+          'Ensure software license is accepted, exactly 2 order updates are checked, and custom engraving is valid.',
+          false
+        );
+      }
+    }
+
+    // --- SECTION 2: ACCESSORIES TABLE ---
+    const INITIAL_CATALOG_HTML = document.querySelector('.catalog-tbody').innerHTML;
+
+    function addAccessoryToBag(btn) {
+      const row = btn.closest('tr');
+      const name = row.querySelector('.item-name').textContent;
+      const price = row.querySelector('.item-price').textContent;
+      updateBagCounter(1);
+      const msg = 'Added ' + name + ' (' + price + ') to Bag!';
+      document.querySelector('.bag-status-banner').textContent = msg;
+      openSheetModal('Added to Bag', 'Studio Accessories', msg, true);
+    }
+
+    function removeAccessoryRow(btn) {
+      const row = btn.closest('tr');
+      const name = row.querySelector('.item-name').textContent;
+      row.remove();
+      refreshCatalogCount();
+      openSheetModal('Accessory Removed', 'Catalog Updated', 'Removed "' + name + '" from catalog view.', true);
+    }
+
+    function addCustomAccessoryRow() {
+      const nameEl = document.querySelector('input[name="custom_acc_name"]');
+      const priceEl = document.querySelector('input[name="custom_acc_price"]');
+      const name = nameEl.value.trim();
+      const price = parseFloat(priceEl.value);
+
+      if (name.length < 3 || isNaN(price) || price < 10 || price > 2000) {
+        openSheetModal('Invalid Accessory Quote', 'Catalog Restriction', 'Name must be at least 3 characters and price between $10 and $2000.', false);
+        return;
+      }
+
+      const tbody = document.querySelector('.catalog-tbody');
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-[#fbfbfd] transition catalog-row';
+      tr.innerHTML = `
+        <td class="py-3.5 px-4 font-semibold item-name"></td>
+        <td class="py-3.5 px-4 text-[#6e6e73] item-category">Custom</td>
+        <td class="py-3.5 px-4 font-medium item-price"></td>
+        <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full bg-[#e8f7ed] text-[#1d8a32] font-medium item-stock-pill">In Stock</span></td>
+        <td class="py-3.5 px-4 text-right space-x-1.5">
+          <button type="button" onclick="addAccessoryToBag(this)" class="pill-btn bg-[#0071e3] hover:bg-[#0077ed] text-white py-1.5 px-3.5 text-xs add-bag-btn">Add to Bag</button>
+          <button type="button" onclick="removeAccessoryRow(this)" class="pill-btn bg-[#f5f5f7] hover:bg-[#ffe5e5] text-[#6e6e73] hover:text-[#d70015] py-1.5 px-3 text-xs remove-acc-btn">Remove</button>
+        </td>
+      `;
+      tr.querySelector('.item-name').textContent = name;
+      tr.querySelector('.item-price').textContent = '$' + price;
+      tbody.appendChild(tr);
+
+      nameEl.value = '';
+      priceEl.value = '';
+      refreshCatalogCount();
+      openSheetModal('Accessory Added', 'Catalog Updated', 'Added "' + name + '" ($' + price + ') to the catalog.', true);
+    }
+
+    function filterAccessoriesTable(query) {
+      const term = query.trim().toLowerCase();
+      document.querySelectorAll('.catalog-tbody .catalog-row').forEach(row => {
+        const name = row.querySelector('.item-name').textContent.toLowerCase();
+        row.style.display = name.includes(term) ? '' : 'none';
+      });
+      refreshCatalogCount();
+    }
+
+    function refreshCatalogCount() {
+      const rows = Array.from(document.querySelectorAll('.catalog-tbody .catalog-row'));
+      const visible = rows.filter(r => r.style.display !== 'none').length;
+      document.querySelector('.catalog-count-label').textContent = 'Showing ' + visible + ' accessor' + (visible === 1 ? 'y' : 'ies');
+
+      const slot = document.querySelector('.empty-catalog-slot');
+      if (visible === 0) {
+        slot.innerHTML = '<div class="empty-catalog-notice p-6 text-center text-xs font-medium text-[#6e6e73] bg-[#fbfbfd] border-t border-black/5">No accessories match your search.</div>';
+      } else {
+        slot.innerHTML = '';
+      }
+    }
+
+    // --- SECTION 3: ACTIONS API (Double-Click, Right-Click, Drag & Drop) ---
+    function authorizePayDoubleClick(btn) {
+      btn.textContent = 'Authorized with Pay!';
+      btn.className = 'pay-doubleclick-btn w-full py-2.5 px-4 rounded-xl bg-[#1d8a32] text-white text-xs font-semibold transition cursor-pointer';
+      document.querySelector('.express-gesture-status').textContent = 'Apple Pay authorized via double-click!';
+    }
+
+    function openBuildContextMenu(event, tile) {
+      event.preventDefault();
+      tile.textContent = 'Options Menu Open!';
+      tile.className = 'saved-build-tile w-full py-2.5 px-4 rounded-xl bg-[#eef6ff] border border-[#0071e3]/40 text-xs font-semibold text-[#0071e3] text-center cursor-context-menu select-none';
+      document.querySelector('.macos-context-menu').classList.remove('hidden');
+      document.querySelector('.express-gesture-status').textContent = 'Context menu opened for Studio M4 build!';
+    }
+
+    function triggerBuildMenuItem(actionText) {
+      document.querySelector('.macos-context-menu').classList.add('hidden');
+      document.querySelector('.express-gesture-status').textContent = 'Build action: ' + actionText;
+    }
+
+    document.addEventListener('click', (e) => {
+      const menu = document.querySelector('.macos-context-menu');
+      if (menu && !menu.classList.contains('hidden') && !e.target.closest('.macos-context-menu')) {
+        menu.classList.add('hidden');
+      }
+    });
+
+    (function setupBundleDragAndDrop() {
+      const src = document.querySelector('.draggable-bundle-item');
+      const tgt = document.querySelector('.express-tray-dropzone');
+      let mouseDragging = false;
+
+      function completeDrop() {
+        tgt.textContent = 'Added to Express Tray!';
+        tgt.className = 'express-tray-dropzone bg-[#e8f7ed] border-2 border-[#248a3d] rounded-xl p-3 text-center text-xs font-semibold text-[#1d8a32] flex items-center justify-center min-h-[60px]';
+        src.textContent = 'AirPods Max Case (In Tray)';
+        src.classList.add('opacity-50');
+        updateBagCounter(1);
+        document.querySelector('.express-gesture-status').textContent = 'AirPods Max Case added via drag & drop!';
+      }
+
+      src.addEventListener('mousedown', () => { mouseDragging = true; });
+      tgt.addEventListener('mouseup', () => {
+        if (mouseDragging) { mouseDragging = false; completeDrop(); }
+      });
+      document.addEventListener('mouseup', () => { mouseDragging = false; });
+
+      src.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', 'airpods-case'));
+      tgt.addEventListener('dragover', (e) => e.preventDefault());
+      tgt.addEventListener('drop', (e) => {
+        e.preventDefault();
+        mouseDragging = false;
+        completeDrop();
+      });
+    })();
+
+    // --- SECTION 4: CHECKOUT FIELD VALIDATORS ---
+    function getFieldNote(el) {
+      return el.closest('.field-group').querySelector('.field-note');
+    }
+    function setFieldOk(el, note) {
+      el.classList.remove('is-err'); el.classList.add('is-ok');
+      if (note) { note.textContent = ''; note.className = 'field-note ok'; }
+      return true;
+    }
+    function setFieldErr(el, note, msg) {
+      el.classList.remove('is-ok'); el.classList.add('is-err');
+      if (note) { note.textContent = msg; note.className = 'field-note err'; }
+      return false;
+    }
+    function resetFieldVisual(el, note) {
+      el.classList.remove('is-ok', 'is-err');
+      if (note) { note.textContent = ''; note.className = 'field-note'; }
+      return false;
+    }
+
+    function checkRecipientName(el) {
+      const note = getFieldNote(el);
+      const val = el.value.trim();
+      if (val === 'Walk-in Guest') return setFieldErr(el, note, 'Clear default "Walk-in Guest" and enter recipient name');
+      if (!val) return setFieldErr(el, note, 'Recipient full name is required');
+      if (val.length < 4 || !/^[A-Za-z\s]+$/.test(val)) return setFieldErr(el, note, 'Enter at least 4 alphabetic characters');
+      return setFieldOk(el, note);
+    }
+
+    function checkCheckoutEmail(el) {
+      const note = getFieldNote(el);
+      const val = el.value.trim();
+      if (!val) return resetFieldVisual(el, note);
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
+        ? setFieldOk(el, note)
+        : setFieldErr(el, note, 'Enter a valid email (e.g. alex@icloud.com)');
+    }
+
+    function checkCheckoutPhone(el) {
+      const val = el.value.trim();
+      el.closest('.field-group').querySelector('.len-counter').textContent = val.length + ' / 10';
+      const note = getFieldNote(el);
+      if (!val) return resetFieldVisual(el, note);
+      return /^\d{10}$/.test(val)
+        ? setFieldOk(el, note)
+        : setFieldErr(el, note, 'Mobile number must be exactly 10 digits');
+    }
+
+    function checkOrderSerial(el) {
+      const val = el.value.trim();
+      el.closest('.field-group').querySelector('.len-counter').textContent = val.length + ' / 8';
+      const note = getFieldNote(el);
+      if (!val) return resetFieldVisual(el, note);
+      return /^[A-Z0-9]{8}$/.test(val)
+        ? setFieldOk(el, note)
+        : setFieldErr(el, note, 'Order reference must be 8 uppercase alphanumeric chars');
+    }
+
+    function checkBuyerAge(el) {
+      const note = getFieldNote(el);
+      const val = el.value.trim();
+      if (!val) return resetFieldVisual(el, note);
+      const num = parseInt(val, 10);
+      if (isNaN(num) || num < 18 || num > 95 || String(num) !== val) {
+        return setFieldErr(el, note, 'Buyer age must be between 18 and 95');
+      }
+      return setFieldOk(el, note);
+    }
+
+    function checkOrderQty(el) {
+      const note = getFieldNote(el);
+      const val = el.value.trim();
+      if (!val) return resetFieldVisual(el, note);
+      const num = parseInt(val, 10);
+      if (isNaN(num) || num < 1 || num > 25 || String(num) !== val) {
+        return setFieldErr(el, note, 'Quantity must be between 1 and 25');
+      }
+      return setFieldOk(el, note);
+    }
+
+    function checkTradeInWeight(el) {
+      const note = getFieldNote(el);
+      const val = el.value.trim();
+      if (!val) return resetFieldVisual(el, note);
+      if (!/^\d+(\.\d{1})?$/.test(val)) return setFieldErr(el, note, 'Enter numeric weight with max 1 decimal place');
+      const num = parseFloat(val);
+      if (num < 0.5 || num > 30.0) return setFieldErr(el, note, 'Weight must be between 0.5 kg and 30.0 kg');
+      return setFieldOk(el, note);
+    }
+
+    function checkAccountPin(el) {
+      const note = getFieldNote(el);
+      const val = el.value.trim();
+      if (!val) return resetFieldVisual(el, note);
+      return /^\d{4}$/.test(val)
+        ? setFieldOk(el, note)
+        : setFieldErr(el, note, 'Security PIN must be exactly 4 digits');
+    }
+
+    function checkEduCode(el) {
+      const note = getFieldNote(el);
+      const val = el.value.trim();
+      if (el.disabled || !val) return resetFieldVisual(el, note);
+      return /^[A-Z]+$/.test(val)
+        ? setFieldOk(el, note)
+        : setFieldErr(el, note, 'Education code must use uppercase letters [A-Z] only');
+    }
+
+    function toggleEduDiscount(btn) {
+      const input = document.querySelector('input[name="edu_discount_code"]');
+      const note = document.querySelector('.edu-lock-note');
+      if (input.disabled) {
+        input.disabled = false;
+        btn.textContent = 'Lock Education Code';
+        note.textContent = 'Unlocked - enter uppercase discount code';
+        note.className = 'field-note ok edu-lock-note';
+        openSheetModal('Education Discount Unlocked', 'Student Verification', 'Education discount code field is now unlocked for entry.', true);
+      } else {
+        input.disabled = true;
+        input.value = '';
+        input.classList.remove('is-ok', 'is-err');
+        btn.textContent = 'Unlock Education Code';
+        note.textContent = 'Requires student verification';
+        note.className = 'field-note edu-lock-note';
+      }
+    }
+
+    function verifyCheckoutDetails() {
+      const checks = [
+        checkRecipientName(document.querySelector('input[name="recipient_name"]')),
+        checkCheckoutEmail(document.querySelector('input[name="checkout_email"]')),
+        checkCheckoutPhone(document.querySelector('input[name="checkout_phone"]')),
+        checkOrderSerial(document.querySelector('input[name="order_serial"]')),
+        checkBuyerAge(document.querySelector('input[name="buyer_age"]')),
+        checkOrderQty(document.querySelector('input[name="order_qty"]')),
+        checkTradeInWeight(document.querySelector('input[name="tradein_weight"]')),
+        checkAccountPin(document.querySelector('input[name="account_pin"]'))
+      ];
+      const eduEl = document.querySelector('input[name="edu_discount_code"]');
+      if (!eduEl.disabled && eduEl.value.trim()) checks.push(checkEduCode(eduEl));
+
+      const fails = checks.filter(c => !c).length;
+      const pill = document.querySelector('.checkout-status-pill');
+
+      if (fails === 0) {
+        pill.textContent = 'Verified';
+        pill.className = 'text-xs font-semibold px-3 py-1 rounded-full bg-[#e8f7ed] text-[#1d8a32] checkout-status-pill';
+        openSheetModal('Checkout Details Verified', 'Billing & Delivery', 'All recipient, financing, and contact fields passed verification!', true);
+      } else {
+        pill.textContent = fails + ' Error(s)';
+        pill.className = 'text-xs font-semibold px-3 py-1 rounded-full bg-[#fff5f5] text-[#d70015] checkout-status-pill';
+        openSheetModal('Verification Failed', 'Billing & Delivery', fails + ' checkout field(s) failed validation rules. Review highlighted inputs.', false);
+      }
+    }
+
+    function clearCheckoutForm() {
+      document.querySelectorAll('#checkout .apple-input').forEach(inp => {
+        inp.value = (inp.name === 'recipient_name') ? 'Walk-in Guest' : '';
+        inp.classList.remove('is-ok', 'is-err');
+      });
+      document.querySelectorAll('#checkout .field-note').forEach(n => { n.textContent = ''; n.className = 'field-note'; });
+      document.querySelectorAll('#checkout .len-counter').forEach(c => {
+        c.textContent = c.textContent.includes('/ 10') ? '0 / 10' : '0 / 8';
+      });
+      const edu = document.querySelector('input[name="edu_discount_code"]');
+      edu.disabled = true;
+      document.querySelector('.edu-lock-note').textContent = 'Requires student verification';
+      document.querySelector('button[onclick*="toggleEduDiscount"]').textContent = 'Unlock Education Code';
+
+      const pill = document.querySelector('.checkout-status-pill');
+      pill.textContent = 'Unverified';
+      pill.className = 'text-xs font-semibold px-3 py-1 rounded-full bg-[#f5f5f7] text-[#6e6e73] checkout-status-pill';
+
+      openSheetModal('Checkout Cleared', 'Reset Notice', 'Checkout details have been reset to default.', true);
+    }
+
+    // Final Authorization Waits & Native Dialogs
+    let checkoutTimer = null;
+    function prepareFinalCheckout() {
+      const btn = document.querySelector('.place-order-btn');
+      const label = document.querySelector('.checkout-timer-label');
+      let sec = 3;
+      btn.disabled = true;
+      btn.className = 'pill-btn place-order-btn bg-[#d2d2d7] text-[#6e6e73] text-xs py-2 px-4';
+      btn.textContent = 'Wait ' + sec + 's...';
+      label.textContent = 'Verifying (' + sec + 's)';
+
+      if (checkoutTimer) clearInterval(checkoutTimer);
+      checkoutTimer = setInterval(() => {
+        sec--;
+        if (sec > 0) {
+          btn.textContent = 'Wait ' + sec + 's...';
+          label.textContent = 'Verifying (' + sec + 's)';
+        } else {
+          clearInterval(checkoutTimer);
+          btn.disabled = false;
+          btn.textContent = 'Place Final Order';
+          btn.className = 'pill-btn place-order-btn bg-[#1d8a32] hover:bg-[#19782b] text-white text-xs py-2 px-4';
+          label.textContent = 'Authorized';
+          label.className = 'text-xs font-mono text-[#1d8a32] font-semibold checkout-timer-label';
+        }
+      }, 1000);
+    }
+
+    function placeFinalOrder() {
+      openSheetModal('Order Confirmed', 'Atelier Studio', 'Thank you! Your Atelier Studio order has been placed and is preparing for dispatch.', true);
+    }
+
+    function generateInvoiceProgress() {
+      const label = document.querySelector('.invoice-progress-label');
+      label.textContent = 'Invoice Status: Signing Invoice (50%)...';
+      label.className = 'text-xs font-mono p-2.5 bg-[#eef6ff] rounded-xl border border-[#0071e3]/20 invoice-progress-label text-[#0071e3]';
+
+      setTimeout(() => {
+        label.textContent = 'Invoice Status: Invoice Ready (100%)';
+        label.className = 'text-xs font-mono font-semibold p-2.5 bg-[#e8f7ed] rounded-xl border border-[#b7e4c2] invoice-progress-label text-[#1d8a32]';
+      }, 1800);
+    }
+
+    // Native Browser JS Dialogs (Step 6)
+    function triggerPickupAlert() {
+      alert('Store Pickup Notice: Flagship stores remain open until 21:00 local time.');
+      document.querySelector('.support-dialog-result').textContent = 'Store pickup alert acknowledged.';
+    }
+
+    function triggerHoldConfirm() {
+      const ok = confirm('Cancel your active express store pickup hold?');
+      document.querySelector('.support-dialog-result').textContent = ok
+        ? 'Confirmed: Express hold cancelled!'
+        : 'Cancelled: Express hold kept active!';
+    }
+
+    function triggerGiftPrompt() {
+      const note = prompt('Enter complimentary gift card message:');
+      document.querySelector('.support-dialog-result').textContent = (note && note.trim())
+        ? 'Gift Note: ' + note.trim()
+        : 'Gift prompt dismissed!';
+    }
+
+    // Tax Upload & Receipt Downloads
+    let taxDocValid = false;
+    let taxDocName = '';
+
+    function handleTaxUpload(input) {
+      const status = document.querySelector('.tax-upload-status');
+      if (!input.files || input.files.length === 0) {
+        taxDocValid = false; taxDocName = '';
+        status.textContent = 'No tax document attached.';
+        status.className = 'text-xs font-medium text-[#6e6e73] bg-[#f5f5f7] p-3 rounded-xl tax-upload-status';
+        return;
+      }
+
+      const file = input.files[0];
+      const okExt = ['.txt', '.csv', '.json'].some(ext => file.name.toLowerCase().endsWith(ext));
+      if (!okExt) {
+        taxDocValid = false; taxDocName = file.name;
+        status.textContent = 'Error: Unsupported file "' + file.name + '". Allowed: .txt, .csv, .json.';
+        status.className = 'text-xs font-semibold text-[#d70015] bg-[#fff5f5] p-3 rounded-xl tax-upload-status';
+        return;
+      }
+      if (file.size > 512 * 1024) {
+        taxDocValid = false; taxDocName = file.name;
+        status.textContent = 'Error: "' + file.name + '" exceeds 512 KB limit.';
+        status.className = 'text-xs font-semibold text-[#d70015] bg-[#fff5f5] p-3 rounded-xl tax-upload-status';
+        return;
+      }
+
+      taxDocValid = true;
+      taxDocName = file.name;
+      status.textContent = 'Uploaded: ' + file.name;
+      status.className = 'text-xs font-semibold text-[#1d8a32] bg-[#e8f7ed] p-3 rounded-xl tax-upload-status';
+    }
+
+    function verifyTaxCertificatePopup() {
+      if (taxDocValid) {
+        openSheetModal('Tax Certificate Verified', 'Compliance Check', 'Uploaded certificate "' + taxDocName + '" passed validation.', true);
+      } else {
+        openSheetModal('Certificate Missing or Invalid', 'Compliance Check', 'Upload a valid .txt, .csv, or .json certificate under 512 KB.', false);
+      }
+    }
+
+    function trackReceiptDownload(filename) {
+      const status = document.querySelector('.receipt-download-status');
+      status.textContent = 'Downloaded "' + filename + '" at ' + new Date().toLocaleTimeString();
+      status.className = 'text-xs font-medium text-[#1d8a32] receipt-download-status';
+    }
+
+    // --- FULL STOREFRONT RESET ---
+    function resetStorefront() {
+      clearCheckoutForm();
+      closeSheetModal();
+
+      bagCount = 0;
+      document.querySelector('.bag-header-count').textContent = 'Bag (0)';
+      document.querySelector('.nav-category-notice').textContent = 'Retail Storefront';
+
+      // Reset Configurator
+      document.querySelector('input[name="hardware_finish"][value="Silver"]').checked = true;
+      updateFinishChoice(document.querySelector('input[name="hardware_finish"][value="Silver"]'));
+      document.querySelector('input[name="memory_tier"][value="16GB"]').checked = true;
+      updateMemoryChoice(document.querySelector('input[name="memory_tier"][value="16GB"]'));
+
+      document.querySelectorAll('#configurator .apple-check').forEach(cb => cb.checked = false);
+      document.querySelector('input[name="select_all_apps"]').indeterminate = false;
+      document.querySelector('.apps-count-label').textContent = '0 / 3 selected';
+      document.querySelector('.updates-count-label').textContent = '0 / 2';
+      document.querySelectorAll('#configurator .field-note').forEach(n => { n.textContent = ''; n.className = 'field-note'; });
+
+      const eng = document.querySelector('input[name="engraving_text"]');
+      eng.value = 'Complimentary Engraving';
+      eng.classList.remove('is-ok', 'is-err');
+      document.querySelector('.engraving-len-badge').textContent = '23 / 24';
+      document.querySelector('.svg-engraving-preview').textContent = 'STUDIO PRO';
+
+      document.querySelector('select[name="pickup_country"]').selectedIndex = 0;
+      const storeEl = document.querySelector('select[name="pickup_store"]');
+      storeEl.selectedIndex = 0;
+      storeEl.disabled = true;
+      document.querySelector('.store-fetch-status').textContent = 'Select a region to browse stores';
+      document.querySelector('.stock-result-container').innerHTML = '';
+
+      document.querySelector('.tradein-scan-status').textContent = 'Instant verification for existing hardware.';
+      document.querySelector('.tradein-scan-status').className = 'text-xs text-[#6e6e73] mt-0.5 tradein-scan-status';
+
+      // Reset Accessories Table
+      document.querySelector('.catalog-tbody').innerHTML = INITIAL_CATALOG_HTML;
+      document.querySelector('input[name="catalog_search"]').value = '';
+      document.querySelector('input[name="custom_acc_name"]').value = '';
+      document.querySelector('input[name="custom_acc_price"]').value = '';
+      document.querySelector('.bag-status-banner').textContent = 'Bag is empty.';
+      refreshCatalogCount();
+
+      // Reset Express Gestures
+      const payBtn = document.querySelector('.pay-doubleclick-btn');
+      payBtn.textContent = 'Double-Click to Pay';
+      payBtn.className = 'pay-doubleclick-btn w-full py-2.5 px-4 rounded-xl bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold transition cursor-pointer';
+
+      const buildTile = document.querySelector('.saved-build-tile');
+      buildTile.textContent = 'Saved Build: Studio M4 (Right-Click)';
+      buildTile.className = 'saved-build-tile w-full py-2.5 px-4 rounded-xl bg-white border border-black/10 text-xs font-semibold text-[#1d1d1f] text-center cursor-context-menu select-none hover:bg-white/80';
+      document.querySelector('.macos-context-menu').classList.add('hidden');
+
+      const src = document.querySelector('.draggable-bundle-item');
+      const tgt = document.querySelector('.express-tray-dropzone');
+      src.textContent = 'AirPods Max Case';
+      src.classList.remove('opacity-50');
+      tgt.textContent = 'Drop Here for Express';
+      tgt.className = 'express-tray-dropzone bg-white/60 border-2 border-dashed border-[#0071e3]/40 rounded-xl p-3 text-center text-xs font-medium text-[#0071e3] flex items-center justify-center min-h-[60px]';
+      document.querySelector('input[name="quick_serial_input"]').value = '';
+      document.querySelector('.express-gesture-status').textContent = 'Ready for express interaction';
+
+      // Reset Checkout Support & Files
+      if (checkoutTimer) clearInterval(checkoutTimer);
+      const ordBtn = document.querySelector('.place-order-btn');
+      ordBtn.disabled = true;
+      ordBtn.textContent = 'Place Final Order';
+      ordBtn.className = 'pill-btn place-order-btn bg-[#d2d2d7] text-[#6e6e73] text-xs py-2 px-4';
+      document.querySelector('.checkout-timer-label').textContent = 'Locked';
+      document.querySelector('.checkout-timer-label').className = 'text-xs font-mono text-[#6e6e73] checkout-timer-label';
+      document.querySelector('.invoice-progress-label').textContent = 'Invoice Status: Idle';
+      document.querySelector('.invoice-progress-label').className = 'text-xs font-mono p-2.5 bg-white rounded-xl border border-black/5 invoice-progress-label text-[#1d1d1f]';
+      document.querySelector('.support-dialog-result').textContent = 'No support dialog triggered yet.';
+
+      document.querySelector('input[name="tax_exempt_upload"]').value = '';
+      taxDocValid = false; taxDocName = '';
+      document.querySelector('.tax-upload-status').textContent = 'No tax document attached.';
+      document.querySelector('.tax-upload-status').className = 'text-xs font-medium text-[#6e6e73] bg-[#f5f5f7] p-3 rounded-xl tax-upload-status';
+
+      openSheetModal('Storefront Reset', 'Atelier Studio', 'All configurations, bag items, checkout inputs, and downloads have been reset.', true);
+    }
+  </script>
+</body>
+</html>
